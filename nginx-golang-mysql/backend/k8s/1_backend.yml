@@ -23,17 +23,7 @@ spec:
                   key: db-password
           ports:
             - containerPort: 8000
-          volumeMounts:
-            - name: db-password-secret
-              mountPath: /etc/mysql/secrets
-              readOnly: true
-      volumes:
-        - name: db-password-secret
-          secret:
-            secretName: db-password
-            items:
-              - key: db-password
-                path: db-password
+
 ---
 apiVersion: v1
 kind: Service
