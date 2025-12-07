@@ -24,13 +24,7 @@ spec:
                 secretKeyRef:
                   name: db-password
                   key: password
-          volumeMounts:
-            - name: db-data
-              mountPath: /var/lib/mysql
-      volumes:
-        - name: db-data
-          persistentVolumeClaim:
-            claimName: db-data
+
 ---
 apiVersion: v1
 kind: Service

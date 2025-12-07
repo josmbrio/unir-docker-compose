@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: backend-builder:latest
+          image: docker.io/josmbrio/my-app-go
           env:
             - name: DB_PASSWORD
               valueFrom:
