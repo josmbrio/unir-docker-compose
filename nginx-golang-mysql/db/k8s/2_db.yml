@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: db
+  labels:
+    app: db
 spec:
   replicas: 1
   selector:
@@ -15,24 +17,38 @@ spec:
       containers:
         - name: mariadb
           image: mariadb:10-focal
-          args: ["--default-authentication-plugin=mysql_native_password"]
+          args:
+            - "--default-authentication-plugin=mysql_native_password"
           env:
             - name: MYSQL_DATABASE
               value: "example"
-            - name: MYSQL_ROOT_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: db-password
-                  key: password
-
+            - name: MYSQL_ROOT_PASSWORD_FILE
+              value: "/etc/mysql/secrets/db-password"
+          volumeMounts:
+            - name: db-password-secret
+              mountPath: /etc/mysql/secrets
+              readOnly: true
+          ports:
+            - containerPort: 3306
+      volumes:
+        - name: db-password-secret
+          secret:
+            secretName: db-password
+            items:
+              - key: db-password
+                path: db-password
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: db
+  labels:
+    app: db
 spec:
+  type: ClusterIP
   selector:
     app: db
   ports:
-    - port: 3306
+    - name: mysql
+      port: 3306
       targetPort: 3306

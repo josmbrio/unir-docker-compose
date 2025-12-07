@@ -14,17 +14,26 @@ spec:
     spec:
       containers:
         - name: backend
-          image: docker.io/josmbrio/my-app-go
+          image: docker.io/josmbrio/my-app-go:2.0
           env:
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: db-password
-                  key: password
-            - name: DB_HOST
-              value: db
+                  key: db-password
           ports:
-            - containerPort: 3000
+            - containerPort: 8000
+          volumeMounts:
+            - name: db-password-secret
+              mountPath: /etc/mysql/secrets
+              readOnly: true
+      volumes:
+        - name: db-password-secret
+          secret:
+            secretName: db-password
+            items:
+              - key: db-password
+                path: db-password
 ---
 apiVersion: v1
 kind: Service
@@ -34,5 +43,5 @@ spec:
   selector:
     app: backend
   ports:
-    - port: 3000
-      targetPort: 3000
+    - port: 8000
+      targetPort: 8000

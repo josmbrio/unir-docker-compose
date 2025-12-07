@@ -16,11 +16,18 @@ import (
 )
 
 func connect() (*sql.DB, error) {
-	bin, err := ioutil.ReadFile("/run/secrets/db-password")
-	if err != nil {
-		return nil, err
-	}
-	return sql.Open("mysql", fmt.Sprintf("root:%s@tcp(db:3306)/example", string(bin)))
+    // 1. Try environment variable first
+    password := os.Getenv("DB_PASSWORD")
+    if password == "" {
+        // 2. Fallback: try reading from file
+        bin, err := ioutil.ReadFile("/run/secrets/db-password")
+        if err != nil {
+            return nil, fmt.Errorf("no DB_PASSWORD env var and fallback file unavailable: %w", err)
+        }
+        password = string(bin)
+    }
+
+    return sql.Open("mysql", fmt.Sprintf("root:%s@tcp(db:3306)/example", password))
 }
 
 func blogHandler(w http.ResponseWriter, r *http.Request) {
